@@ -1,6 +1,15 @@
 import fs from "fs";
 import path from "path";
 
+// --- Création automatique du dossier data ---
+const dataDir = path.resolve("data");
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+  console.log("✅ dossier 'data' créé automatiquement");
+}
+import fs from "fs";
+import path from "path";
+
 // assure que le dossier data existe
 const dataDir = path.resolve("data");
 if (!fs.existsSync(dataDir)) {
@@ -112,5 +121,6 @@ const server = app.listen(PORT, () =>
 // ---- WebSocket ----
 const wss = new WebSocketServer({ server });
 wss.on("connection", (ws) => ws.send("connecté au backend local"));
+
 
 
