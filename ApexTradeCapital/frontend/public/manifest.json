@@ -1,0 +1,21 @@
+{
+  "short_name": "Apex Trust",
+  "name": "Apex Trust Capital",
+  "description": "An innovative and reliable platform that merges financial investment, international mobility, and connected customer support, specifically designed for the Haitian-American market.",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#111827",
+  "background_color": "#ffffff"
+}
