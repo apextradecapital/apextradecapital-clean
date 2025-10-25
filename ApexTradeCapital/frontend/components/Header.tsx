@@ -1,3 +1,4 @@
+import logo from "./assets/logo.png";
 import React from 'react';
 import RealTimeClock from './RealTimeClock';
 import { useAppContext } from '../context/AppContext';
@@ -51,7 +52,7 @@ const Header = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <button onClick={() => navigate('home')} className="flex items-center gap-2 focus:outline-none">
-              <img src="/logo.png" alt="Apex Trust Capital Logo" className="h-12 w-auto rounded-full" />
+              <img src={logo} alt="Apex Trust Capital" className="h-10" />
               <div className="hidden sm:flex flex-col items-start leading-tight">
                 <span className="text-xl font-extrabold text-brand-blue dark:text-white">APEX TRUST</span>
                 <span className="text-sm font-bold text-brand-gold -mt-1">CAPITAL</span>
