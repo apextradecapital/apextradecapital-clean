@@ -1,0 +1,46 @@
+services:
+  # === BACKEND APEX TRADE CAPITAL ===
+  - type: web
+    name: apextradecapital-backend
+    env: node
+    buildCommand: cd ApexTradeCapital/backend && npm install
+    startCommand: node ApexTradeCapital/backend/server.js
+    plan: free
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 3000
+      - key: DATA_DIR
+        value: /tmp/data
+      - key: DB_FILE
+        value: /data/apextrade.db
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 465
+      - key: MAIL_USER
+        value: loicndjana06@gmail.com
+      - key: MAIL_PASS
+        value: xuwktigrfnsnarda
+      - key: ADMIN_EMAIL
+        value: loicndjana06@gmail.com
+      - key: WHATSAPP_NUMBER
+        value: +16265333367
+      - key: WS_PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+
+  # === FRONTEND APEX TRADE CAPITAL ===
+  - type: web
+    name: apextradecapital-frontend
+    env: node
+    buildCommand: cd ApexTradeCapital/frontend && npm install && npm run build
+    startCommand: npx serve -s ApexTradeCapital/frontend/dist -l 10000
+    plan: free
+    envVars:
+      - key: VITE_API_BASE
+        value: https://apextradecapital-backend.onrender.com
