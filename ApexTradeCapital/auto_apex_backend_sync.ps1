@@ -1,3 +1,25 @@
+$ErrorActionPreference="Stop"
+
+# === AUTO APEX BACKEND SYNC ===
+$root = Get-Location
+$be   = Join-Path $root "backend"
+$sv   = Join-Path $be   "server.js"
+
+if (!(Test-Path $be)) { throw "backend/ introuvable. Ouvre PowerShell à la racine du projet." }
+if (!(Test-Path $sv)) { New-Item -ItemType File -Path $sv -Force | Out-Null }
+
+# Backup
+$stamp = Get-Date -Format "yyyyMMdd_HHmmss"
+$bak   = Join-Path $be "server.$stamp.bak.js"
+Copy-Item $sv $bak -Force
+
+# Deps
+Push-Location $be
+npm i express cors helmet dotenv better-sqlite3 ws nodemailer bcrypt --no-fund --no-audit
+Pop-Location
+
+# Write server.js
+@'
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -316,3 +338,9 @@ setInterval(()=>{
 
 // Start HTTP
 app.listen(PORT, ()=> console.log(`Apex backend on :${PORT} ; WS:${WS_PORT}`));
+'@ | Set-Content $sv -Encoding UTF8
+
+Write-Host "OK. backend/server.js reconstruit."
+Write-Host "Vars Render requises:"
+Write-Host "  MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS, ADMIN_EMAIL"
+Write-Host "  CORS_ORIGIN, DB_FILE, PORT=3000, WS_PORT=3001, USD_RATE, WHATSAPP_NUMBER, ADMIN_KEY"
