@@ -1,90 +1,30 @@
-﻿body {
-  font-family: "Poppins", Arial, sans-serif;
-  background: #f5f7fa;
-  color: #111;
-  margin: 0;
-  padding: 0;
+﻿/* === APEX TRADE CAPITAL THEME === */
+:root {
+  --apex-blue: #1e3a8a;
+  --apex-gold: #D4AF37;
 }
 
-.header {
-  background: #002D62;
-  color: #D4AF37;
-  text-align: center;
-  padding: 15px;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 1px;
+body {
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: 'Inter', sans-serif;
 }
 
-.navbar {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  background: #001A40;
-  padding: 12px;
-}
-
-.navbar a {
+header, nav {
+  background-color: var(--apex-blue);
   color: white;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.navbar a:hover {
-  color: #D4AF37;
-}
-
-.card {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  padding: 20px;
-  max-width: 420px;
-  margin: 30px auto;
-  text-align: center;
+  font-weight: 600;
 }
 
 button {
-  background: #002D62;
-  color: #D4AF37;
-  border: none;
+  background-color: var(--apex-gold);
+  color: #111827;
   border-radius: 6px;
-  padding: 10px 16px;
+  padding: 8px 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
 }
 
 button:hover {
-  background: #D4AF37;
-  color: #002D62;
-}
-
-input, select {
-  width: 100%;
-  margin: 6px 0;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.progress-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.progress-bar {
-  background: #eee;
-  border-radius: 10px;
-  height: 10px;
-  margin: 8px 0;
-}
-
-.progress-fill {
-  background: #D4AF37;
-  height: 10px;
-  border-radius: 10px;
-  transition: width 1s;
+  background-color: #b98d28;
 }
