@@ -9,3 +9,4 @@ export function subscribeEvents(onMsg: (e:any)=>void) {
   };
   return () => ws.close();
 }
+

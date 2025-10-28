@@ -31,3 +31,4 @@ export default function WhatsAppFloat() {
     </a>
   );
 }
+

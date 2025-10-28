@@ -9,3 +9,4 @@ const SpainFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default SpainFlagIcon;
+

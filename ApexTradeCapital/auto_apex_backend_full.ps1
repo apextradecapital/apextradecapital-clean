@@ -1,24 +1,53 @@
-# === AUTO APEX BACKEND FULL (stable + balance/progress/USD/adjust) ===
-$ErrorActionPreference="Stop"
-$root = Get-Location
-$be   = Join-Path $root "backend"
-$sv   = Join-Path $be   "server.js"
-if (!(Test-Path $be)) { throw "backend/ introuvable" }
-if (!(Test-Path $sv)) { throw "backend/server.js introuvable" }
+# =========================================================
+# AUTO PRIMEFX FULL – Backend + Frontend + Build + GitHub
+# =========================================================
+$ErrorActionPreference = "Stop"
 
-# Backup
+# --- CONFIG ---
+$PROJECT_ROOT = Get-Location
+$BACKEND_DIR = Join-Path $PROJECT_ROOT "backend"
+$FRONTEND_DIR = Join-Path $PROJECT_ROOT "frontend"
+$DATA_DIR = Join-Path $PROJECT_ROOT "data"
+$UPLOADS_DIR = Join-Path $PROJECT_ROOT "uploads"
+$ZIP_OUT = Join-Path $PROJECT_ROOT "primefx_ready.zip"
+$NEW_APP_NAME = "PrimeFX"
+$LOGO_NAME = "logo.png"   # Ton logo à placer à la racine du projet
+# ----------------
+
+function Ensure-Exists($p){ if (!(Test-Path $p)){ New-Item -ItemType Directory -Path $p | Out-Null } }
+
+if (!(Test-Path $BACKEND_DIR)) { throw "backend/ introuvable" }
+if (!(Test-Path $FRONTEND_DIR)) { throw "frontend/ introuvable" }
+
+# --- BACKUP ---
 $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$bak   = Join-Path $be "server.$stamp.bak.js"
-Copy-Item $sv $bak -Force
-Write-Host "Backup -> $bak"
+$backupDir = Join-Path $PROJECT_ROOT ("backup_"+$stamp)
+New-Item -ItemType Directory -Path $backupDir | Out-Null
+Copy-Item $BACKEND_DIR -Destination (Join-Path $backupDir "backend") -Recurse -Force
+Copy-Item $FRONTEND_DIR -Destination (Join-Path $backupDir "frontend") -Recurse -Force
+Write-Host "🗂️ Backup créé : $backupDir"
 
-# Deps
-Push-Location $be
-npm i express cors helmet dotenv better-sqlite3 ws nodemailer bcrypt --no-fund --no-audit
+# --- STRUCTURES ---
+Ensure-Exists $DATA_DIR
+Ensure-Exists $UPLOADS_DIR
+
+# --- INSTALL DEPENDANCES BACKEND ---
+Push-Location $BACKEND_DIR
+npm install express cors helmet dotenv better-sqlite3 ws nodemailer bcrypt --no-fund --no-audit
 Pop-Location
 
-# Rewrite server.js
-@'
+# --- INSTALL DEPENDANCES FRONTEND ---
+Push-Location $FRONTEND_DIR
+npm install --no-fund --no-audit
+Pop-Location
+
+# --- RÉÉCRITURE DU BACKEND (server.js stable & complet) ---
+$sv = Join-Path $BACKEND_DIR "server.js"
+$sv_bak = Join-Path $BACKEND_DIR ("server.js.bak." + $stamp)
+if (Test-Path $sv) { Copy-Item $sv $sv_bak -Force }
+Write-Host "💾 Backup server.js -> $sv_bak"
+
+$server_js = @'
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -35,18 +64,17 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(helmet());
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "2mb" }));
 
-// === DATA & DB ===
-const dataDir = path.resolve("data");
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-const db = new Database(path.join(dataDir, "apextrade.db"));
+const DATA_DIR = process.env.DATA_DIR || path.resolve("data");
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+const DB_FILE = process.env.DB_FILE || path.join(DATA_DIR, "apextrade.db");
+const db = new Database(DB_FILE);
 
-// Tables
 db.prepare(`CREATE TABLE IF NOT EXISTS users(
   id TEXT PRIMARY KEY,
   first_name TEXT,
-  last_name  TEXT,
+  last_name TEXT,
   country_code TEXT,
   dial TEXT,
   phone TEXT,
@@ -58,15 +86,14 @@ db.prepare(`CREATE TABLE IF NOT EXISTS investments(
   user_id TEXT,
   offer TEXT,
   amount INTEGER,
-  status TEXT,           -- "pending"|"confirmed"|"running"|"paused"|"cancelled"|"finished"
+  status TEXT,
   start_at TEXT,
   duration_days INTEGER,
   fee_percent REAL,
-  fee_fixed   REAL,
-  rate REAL,             -- rendement total cible (ex 0.4 = +40%)
+  fee_fixed REAL,
+  rate REAL,
   created_at TEXT,
-  updated_at TEXT,
-  FOREIGN KEY(user_id) REFERENCES users(id)
+  updated_at TEXT
 );`).run();
 
 db.prepare(`CREATE TABLE IF NOT EXISTS events(
@@ -86,257 +113,147 @@ db.prepare(`CREATE TABLE IF NOT EXISTS otps(
   consumed INTEGER DEFAULT 0
 );`).run();
 
-// Mail admin
 const ADMIN = process.env.ADMIN_EMAIL;
-const mailer = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: parseInt(process.env.MAIL_PORT || "465"),
+const mailTransport = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.SMTP_PORT || "465"),
   secure: true,
-  auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS }
+  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
 });
 
-// WS admin (option)
 const wssPort = process.env.WS_PORT ? Number(process.env.WS_PORT) : 3001;
 const wss = new WebSocketServer({ port: wssPort });
 const wsClients = new Set();
 wss.on("connection", ws => { wsClients.add(ws); ws.on("close", ()=>wsClients.delete(ws)); });
-function broadcast(msg){
-  const data = JSON.stringify({ topic:"events", ...msg });
-  for (const ws of wsClients) { try { ws.send(data); } catch {} }
-}
+function broadcast(msg){ const data = JSON.stringify({ topic:"events", ...msg }); for (const ws of wsClients){ try{ws.send(data);}catch{}} }
 
-// Logger
 function logEvent(actor, type, payload = {}) {
   const ts = new Date().toISOString();
   db.prepare("INSERT INTO events(ts,actor,type,payload) VALUES (?,?,?,?)").run(ts, actor, type, JSON.stringify(payload));
   broadcast({ ts, actor, type, payload });
-  if (ADMIN && process.env.MAIL_USER) {
-    const body = `Date: ${ts}\nType: ${type}\nActeur: ${actor}\nDétails:\n${JSON.stringify(payload,null,2)}`;
-    mailer.sendMail({
-      from: `"Apex Trade Capital" <${process.env.MAIL_USER}>`,
-      to: ADMIN,
-      subject: `[Apex] ${type}`,
-      text: body
-    }).catch(()=>{});
+  if (ADMIN && mailTransport) {
+    const body = `Date: ${ts}\nType: ${type}\nActeur: ${actor}\n\n${JSON.stringify(payload,null,2)}`;
+    mailTransport.sendMail({ from: process.env.SMTP_USER, to: ADMIN, subject: `[PrimeFX] ${type}`, text: body }).catch(()=>{});
   }
 }
 
-// Utils
 function nowISO(){ return new Date().toISOString(); }
 function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
 
-// === Balance computation (linéaire) ===
-function computeInvestmentState(inv, opts = {}) {
-  const principal = Number(inv.amount || 0);
+function computeInvestmentState(inv){
+  const principal = Number(inv.amount||0);
   const start = inv.start_at ? new Date(inv.start_at).getTime() : null;
-  const durationMs = (inv.duration_days || 0) * 24*3600*1000;
+  const durationMs = (inv.duration_days||0)*24*3600*1000;
   let progress = 0;
-  if (start && durationMs>0) {
+  if (start && durationMs>0){
     const now = Date.now();
-    progress = clamp(Math.round(((now - start)/durationMs)*100), 0, 100);
+    progress = clamp(Math.round(((now-start)/durationMs)*100),0,100);
   }
-  const rate = Number(inv.rate ?? opts.defaultRate ?? 0.40); // 40% par défaut
-  const accrued = +(principal * rate * (progress/100));
-  const fee_percent = Number(inv.fee_percent || 0);
-  const fee_fixed = Number(inv.fee_fixed || 0);
-  const fees_applied = +(principal * fee_percent/100) + fee_fixed;
-  const net = +(principal + accrued - fees_applied);
-  const usd_rate = Number(process.env.USD_RATE || 0);
-  const net_usd = usd_rate ? +(net * usd_rate) : 0;
-  return { principal, progress, accrued, fee_percent, fee_fixed, fees_applied, net, usd_rate, net_usd };
+  const rate = Number(inv.rate||0.4);
+  const accrued = principal * rate * (progress/100);
+  const fee_percent = Number(inv.fee_percent||0);
+  const fee_fixed = Number(inv.fee_fixed||0);
+  const net = principal + accrued - (principal*fee_percent/100) - fee_fixed;
+  return { principal, progress, accrued, net };
 }
 
-// === ROUTES ===
+app.post("/api/register",(req,res)=>{
+  const {firstName,lastName,countryCode,dial,phone}=req.body||{};
+  if(!firstName||!lastName||!countryCode||!dial||!phone) return res.status(400).json({ok:false,error:"missing_fields"});
+  const id="usr_"+crypto.randomUUID();
+  db.prepare("INSERT INTO users(id,first_name,last_name,country_code,dial,phone,created_at) VALUES(?,?,?,?,?,?,?)").run(id,firstName,lastName,countryCode,dial,phone,nowISO());
+  logEvent(`user:${id}`,"user_registered",{id,firstName,lastName});
+  res.json({ok:true,userId:id});
+});
 
-// Register simple
-app.post("/api/register", (req,res)=>{
-  const { firstName, lastName, countryCode, dial, phone } = req.body || {};
-  if (!firstName || !lastName || !countryCode || !dial || !phone) {
-    return res.status(400).json({ ok:false, error:"missing_fields" });
+app.post("/api/investments",(req,res)=>{
+  const {userId,offer,amount,durationDays,rate}=req.body||{};
+  if(!userId||!offer||!amount) return res.status(400).json({ok:false,error:"missing_fields"});
+  const id="inv_"+crypto.randomUUID();
+  const now=nowISO();
+  db.prepare("INSERT INTO investments(id,user_id,offer,amount,status,start_at,duration_days,rate,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)")
+    .run(id,userId,offer,amount,"pending",null,durationDays||4,rate||0.4,now,now);
+  logEvent(`user:${userId}`,"invest_created",{investmentId:id});
+  res.json({ok:true,investmentId:id,status:"pending"});
+});
+
+app.post("/api/investments/:id/confirm",async(req,res)=>{
+  const invId=req.params.id;
+  const inv=db.prepare("SELECT * FROM investments WHERE id=?").get(invId);
+  if(!inv) return res.status(404).json({ok:false,error:"not_found"});
+  const otp=String(Math.floor(100000+Math.random()*900000));
+  const otpHash=await bcrypt.hash(otp,10);
+  const exp=new Date(Date.now()+15*60000).toISOString();
+  db.prepare("INSERT INTO otps(investment_id,user_id,otp_hash,expires_at) VALUES(?,?,?,?)").run(invId,inv.user_id,otpHash,exp);
+  logEvent("system","invest_confirmed",{investmentId:invId,otp});
+  if(ADMIN&&mailTransport){
+    mailTransport.sendMail({from:process.env.SMTP_USER,to:ADMIN,subject:`[PrimeFX] OTP ${invId}`,text:`OTP: ${otp}`}).catch(()=>{});
   }
-  const id = "usr_" + crypto.randomUUID();
-  db.prepare(`INSERT INTO users(id,first_name,last_name,country_code,dial,phone,created_at)
-              VALUES (?,?,?,?,?,?,?)`)
-    .run(id, firstName, lastName, countryCode, dial, phone, nowISO());
-  logEvent(\`user:\${id}\`, "user_registered", { id, firstName, lastName, countryCode, dial, phone });
-  res.json({ ok:true, userId:id });
+  res.json({ok:true,status:"otp_sent_admin"});
 });
 
-// Create investment (pending)
-app.post("/api/investments", (req,res)=>{
-  const { userId, offer, amount, durationDays, rate } = req.body || {};
-  if (!userId || !offer || !amount) return res.status(400).json({ ok:false, error:"missing_fields" });
-  const id  = "inv_" + crypto.randomUUID();
-  const now = nowISO();
-  db.prepare(`INSERT INTO investments(id,user_id,offer,amount,status,start_at,duration_days,fee_percent,fee_fixed,rate,created_at,updated_at)
-              VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
-    .run(id, userId, offer, Number(amount), "pending", null, durationDays ? Number(durationDays) : 4, null, null, rate ?? 0.40, now, now);
-  logEvent(\`user:\${userId}\`, "invest_created", { investmentId:id, offer, amount:Number(amount) });
-  res.json({ ok:true, investmentId:id, status:"pending" });
-});
-
-// Confirm -> generate OTP to admin
-app.post("/api/investments/:id/confirm", async (req,res)=>{
-  const invId = req.params.id;
-  const inv = db.prepare("SELECT * FROM investments WHERE id=?").get(invId);
-  if (!inv) return res.status(404).json({ ok:false, error:"not_found" });
-
-  const otp = String(Math.floor(100000 + Math.random()*900000));
-  const otpHash = await bcrypt.hash(otp, 10);
-  const ttlMin  = process.env.OTP_TTL_MIN ? parseInt(process.env.OTP_TTL_MIN) : 15;
-  const exp     = new Date(Date.now() + ttlMin*60000).toISOString();
-
-  db.prepare(`INSERT INTO otps(investment_id,user_id,otp_hash,expires_at,consumed)
-              VALUES (?,?,?,?,0)`).run(invId, inv.user_id, otpHash, exp);
-
-  db.prepare("UPDATE investments SET status='confirmed', updated_at=? WHERE id=?").run(nowISO(), invId);
-
-  logEvent("system", "invest_confirmed", { investmentId:invId, userId:inv.user_id, offer:inv.offer, amount:inv.amount, otp_masked: otp.replace(/\d{3}$/,"***") });
-
-  if (ADMIN && process.env.MAIL_USER) {
-    const body = [
-      "CONFIRMATION INVESTISSEMENT",
-      \`Date : \${nowISO()}\`,
-      \`InvestmentID : \${invId}\`,
-      \`UserID : \${inv.user_id}\`,
-      \`Offre : \${inv.offer}\`,
-      \`Montant : \${inv.amount}\`,
-      \`OTP (ADMIN) : \${otp}\`,
-      \`Expire dans : \${ttlMin} min\`
-    ].join("\\n");
-    mailer.sendMail({ from:\`"Apex Trade Capital" <\${process.env.MAIL_USER}>\`, to:ADMIN, subject:\`[Apex] OTP invest \${invId}\`, text:body }).catch(()=>{});
-  }
-
-  res.json({ ok:true, status:"otp_sent_admin" });
-});
-
-// Verify OTP -> start running
-app.post("/api/investments/:id/verify-otp", async (req,res)=>{
-  const invId = req.params.id;
-  const { otp } = req.body || {};
-  if (!otp) return res.status(400).json({ ok:false, error:"missing_otp" });
-
-  const row = db.prepare("SELECT * FROM otps WHERE investment_id=? AND consumed=0 ORDER BY id DESC LIMIT 1").get(invId);
-  if (!row) return res.status(400).json({ ok:false, error:"otp_not_found" });
-  if (new Date(row.expires_at) < new Date()) return res.status(400).json({ ok:false, error:"otp_expired" });
-
-  const ok = await bcrypt.compare(otp, row.otp_hash);
-  if (!ok) return res.status(400).json({ ok:false, error:"otp_invalid" });
-
+app.post("/api/investments/:id/verify-otp",async(req,res)=>{
+  const {otp}=req.body||{};
+  const row=db.prepare("SELECT * FROM otps WHERE consumed=0 ORDER BY id DESC LIMIT 1").get();
+  if(!row) return res.status(400).json({ok:false,error:"otp_not_found"});
+  if(new Date(row.expires_at)<new Date()) return res.status(400).json({ok:false,error:"otp_expired"});
+  const ok=await bcrypt.compare(otp,row.otp_hash);
+  if(!ok) return res.status(400).json({ok:false,error:"otp_invalid"});
   db.prepare("UPDATE otps SET consumed=1 WHERE id=?").run(row.id);
-  const now = nowISO();
-  db.prepare("UPDATE investments SET status='running', start_at=?, updated_at=? WHERE id=?").run(now, now, invId);
-  logEvent("system","invest_started",{ investmentId:invId });
-  res.json({ ok:true, status:"running" });
+  logEvent("system","otp_verified",{otp});
+  res.json({ok:true,status:"running"});
 });
 
-// Balance/progress endpoint
-app.get("/api/investments/:id/balance", (req,res)=>{
-  const inv = db.prepare("SELECT * FROM investments WHERE id=?").get(req.params.id);
-  if (!inv) return res.status(404).json({ ok:false, error:"not_found" });
-  const s = computeInvestmentState(inv, { defaultRate: 0.40 });
-  res.json({
-    ok:true,
-    investmentId: inv.id,
-    principal: s.principal,
-    progress: s.progress,
-    accrued: s.accrued,
-    fee_percent: s.fee_percent,
-    fee_fixed: s.fee_fixed,
-    fees_applied: s.fees_applied,
-    net_balance: s.net,
-    currency: "HTG",
-    usd_rate: s.usd_rate || 0,
-    net_balance_usd: s.net_usd || 0
-  });
-});
-
-// Admin: fees
-app.post("/api/admin/fees", (req,res)=>{
-  const { investmentId, feePercent, feeFixed } = req.body || {};
-  if (!investmentId) return res.status(400).json({ ok:false, error:"missing_investmentId" });
-  db.prepare("UPDATE investments SET fee_percent=?, fee_fixed=?, updated_at=? WHERE id=?")
-    .run(feePercent ?? null, feeFixed ?? null, nowISO(), investmentId);
-  logEvent("admin:system","fees_set",{ investmentId, feePercent, feeFixed });
-  res.json({ ok:true });
-});
-
-// Admin: adjust balance (adjust principal)
-app.post("/api/admin/adjust-balance", (req,res)=>{
-  const { investmentId, newPrincipal } = req.body || {};
-  if (!investmentId || newPrincipal == null) return res.status(400).json({ ok:false, error:"missing_fields" });
-  db.prepare("UPDATE investments SET amount=?, updated_at=? WHERE id=?").run(Number(newPrincipal), nowISO(), investmentId);
-  logEvent("admin:system","principal_adjusted",{ investmentId, newPrincipal:Number(newPrincipal) });
-  res.json({ ok:true });
-});
-
-// Admin: pause/resume/cancel
-app.post("/api/admin/pause", (req,res)=>{
-  const { investmentId } = req.body || {};
-  if (!investmentId) return res.status(400).json({ ok:false, error:"missing_investmentId" });
-  db.prepare("UPDATE investments SET status='paused', updated_at=? WHERE id=?").run(nowISO(), investmentId);
-  logEvent("admin:system","invest_paused",{ investmentId });
-  res.json({ ok:true, status:"paused" });
-});
-app.post("/api/admin/resume", (req,res)=>{
-  const { investmentId } = req.body || {};
-  if (!investmentId) return res.status(400).json({ ok:false, error:"missing_investmentId" });
-  db.prepare("UPDATE investments SET status='running', updated_at=? WHERE id=?").run(nowISO(), investmentId);
-  logEvent("admin:system","invest_resumed",{ investmentId });
-  res.json({ ok:true, status:"running" });
-});
-app.post("/api/admin/cancel", (req,res)=>{
-  const { investmentId } = req.body || {};
-  if (!investmentId) return res.status(400).json({ ok:false, error:"missing_investmentId" });
-  db.prepare("UPDATE investments SET status='cancelled', updated_at=? WHERE id=?").run(nowISO(), investmentId);
-  logEvent("admin:system","invest_cancelled",{ investmentId });
-  res.json({ ok:true, status:"cancelled" });
-});
-
-// Withdraw (client)
-app.post("/api/withdraw", (req,res)=>{
-  const { userId, amount, network, account } = req.body || {};
-  if (!userId || !amount || !network || !account) return res.status(400).json({ ok:false, error:"missing_fields" });
-  logEvent(\`user:\${userId}\`,"withdraw_requested",{ amount:Number(amount), network, account });
-  res.json({ ok:true, status:"requested" });
-});
-
-// WhatsApp helper (prérempli)
-app.post("/api/whatsapp-link", (req,res)=>{
-  const { context, userId } = req.body || {};
-  const phoneRaw = process.env.WHATSAPP_NUMBER || "+16265333367";
-  const dict = {
-    register: "Bonjour, je souhaite créer mon compte.",
-    invest:   "Bonjour, je souhaite réaliser un investissement.",
-    withdraw: "Bonjour, je souhaite retirer mes bénéfices.",
-    help:     "Bonjour, j’ai besoin d’assistance."
-  };
-  const msg = dict[context || "help"];
-  const url = \`https://wa.me/\${phoneRaw.replace(/[^0-9]/g,"")}?text=\${encodeURIComponent(msg + (userId? " (User:"+userId+")": ""))}\`;
-  res.json({ ok:true, url });
-});
-
-// Events & health
-app.get("/api/events",(req,res)=>{
-  const rows = db.prepare("SELECT * FROM events ORDER BY id DESC LIMIT 200").all();
-  res.json({ ok:true, events: rows.map(r => ({...r, payload: safe(r.payload) })) });
-});
-function safe(s){ try{return JSON.parse(s||"{}")}catch{return{}} }
-
-app.get("/api/health",(req,res)=> res.json({ ok:true, ts:new Date().toISOString() }));
+app.get("/api/health",(req,res)=>res.json({ok:true,ts:new Date().toISOString()}));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=> console.log(\`🚀 Backend lancé sur le port \${PORT} ; WS:\${wssPort}\`));
-'@ | Set-Content $sv -Encoding UTF8
+app.listen(PORT,()=>console.log(`🚀 PrimeFX backend running on ${PORT}`));
+'@
 
-Write-Host "OK. Backend reconstruit."
-Write-Host "Render → Backend → Settings → Environment :"
-Write-Host "  MAIL_HOST=smtp.gmail.com"
-Write-Host "  MAIL_PORT=465"
-Write-Host "  MAIL_USER=loicndjana06@gmail.com"
-Write-Host "  MAIL_PASS=<mot_de_passe_application_gmail>"
-Write-Host "  ADMIN_EMAIL=loicndjana06@gmail.com"
-Write-Host "  WS_PORT=3001"
-Write-Host "  WHATSAPP_NUMBER=+16265333367"
-Write-Host "  USD_RATE=0.012   # exemple HTG->USD"
-Write-Host "  NODE_VERSION=20"
+Set-Content -Path $sv -Value $server_js -Encoding UTF8
+Write-Host "✅ server.js reconstruit et prêt."
+
+# --- PATCH FRONTEND ---
+Write-Host "🔧 Remplacement 'Apex' → 'PrimeFX'..."
+Get-ChildItem -Path $FRONTEND_DIR -Include *.html,*.tsx,*.ts,*.js,*.jsx,*.json -Recurse | ForEach-Object {
+    try {
+        (Get-Content $_.FullName -Raw) -replace 'Apex Trade Capital','PrimeFX' `
+                                     -replace 'ApexTradeCapital','PrimeFX' `
+                                     -replace 'Apex','PrimeFX' | Set-Content $_.FullName -Encoding UTF8
+    } catch {}
+}
+
+# --- LOGO ---
+$localLogo = Join-Path $PROJECT_ROOT $LOGO_NAME
+$destLogo = Join-Path $FRONTEND_DIR ("public\" + $LOGO_NAME)
+Ensure-Exists (Join-Path $FRONTEND_DIR "public")
+if (Test-Path $localLogo) { Copy-Item $localLogo -Destination $destLogo -Force }
+
+# --- BUILD FRONTEND ---
+Push-Location $FRONTEND_DIR
+Write-Host "🏗️ Construction du frontend..."
+npm run build --if-present
+Pop-Location
+
+# --- ZIP GLOBAL ---
+if (Test-Path $ZIP_OUT) { Remove-Item $ZIP_OUT -Force }
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::CreateFromDirectory($PROJECT_ROOT, $ZIP_OUT)
+Write-Host "📦 Archive créée : $ZIP_OUT"
+
+# --- SAUVEGARDE GITHUB ---
+Write-Host "`n💾 Sauvegarde GitHub..."
+try {
+    Push-Location $PROJECT_ROOT
+    git add .
+    $commitMsg = "AutoBackup $(Get-Date -Format 'yyyy-MM-dd_HHmmss')"
+    git commit -m $commitMsg
+    git push origin master
+    Write-Host "✅ Sauvegarde GitHub réussie ($commitMsg)"
+    Pop-Location
+} catch {
+    Write-Host "⚠️ GitHub Backup échoué : $($_.Exception.Message)"
+}
+
+Write-Host "`n🚀 Tâches terminées avec succès."
+# =========================================================

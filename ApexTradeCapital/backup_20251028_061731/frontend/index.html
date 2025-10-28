@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111827" />
+    <meta name="description" content="Apex Trust Capital: An innovative and reliable platform that merges financial investment, international mobility, and connected customer support, specifically designed for the Haitian-American market." />
+    <meta name="keywords" content="investissement haïti, finance haïtiano-américaine, apex trust capital, mobilité internationale, investissement en gourdes, investissement en euros, fintech haïti" />
+    <meta property="og:title" content="Apex Trust Capital – Investir en toute sécurité" />
+    <meta property="og:description" content="Investir en toute sécurité avec Apex Trust Capital, la plateforme de confiance pour la communauté haïtiano-américaine." />
+    <meta property="og:image" content="/logo.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Apex Trust Capital – Investir en toute sécurité</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'brand-blue': '#1e3a8a',
+              'brand-gold': '#D4AF37',
+              'brand-charcoal': '#111827',
+              'brand-silver': '#c0c0c0',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            keyframes: {
+              'fade-in-right': {
+                '0%': { opacity: '0', transform: 'translateX(100%)' },
+                '100%': { opacity: '1', transform: 'translateX(0)' },
+              },
+              'progress-stripes': {
+                '0%': { backgroundPosition: '1rem 0' },
+                '100%': { backgroundPosition: '0 0' },
+              },
+              'fade-up': {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              'scroll-horizontal': {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-50%)' },
+              },
+               'pulse-light': {
+                '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+                '50%': { transform: 'scale(1.1)', opacity: '0.9' },
+              },
+              'scroll-horizontal-slow': {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-50%)' },
+              },
+            },
+            animation: {
+              'fade-in-right': 'fade-in-right 0.5s ease-out forwards',
+              'progress-stripes': 'progress-stripes 1s linear infinite',
+              'fade-up': 'fade-up 0.7s ease-out forwards',
+              'scroll-horizontal': 'scroll-horizontal 6s linear infinite',
+              'pulse-light': 'pulse-light 2s ease-in-out infinite',
+              'scroll-horizontal-slow': 'scroll-horizontal-slow 40s linear infinite',
+            },
+          }
+        }
+      }
+    </script>
+    <style>
+      .dashboard-watermark {
+        position: relative;
+        z-index: 1;
+      }
+      .dashboard-watermark::before {
+        content: '';
+        position: absolute;
+        top: 5%;
+        right: 5%;
+        width: 140px;
+        height: 140px;
+        background-image: url('/logo.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        opacity: 0.04;
+        z-index: -1;
+      }
+      .animate-on-scroll {
+        opacity: 0;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.23.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

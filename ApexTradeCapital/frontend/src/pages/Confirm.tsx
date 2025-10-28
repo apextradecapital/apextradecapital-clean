@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { api } from "../services/api";
 import { toast } from "react-toastify";
 import InvestmentProgress from "../components/InvestmentProgress";
@@ -30,3 +30,4 @@ export default function Confirm() {
     </div>
   );
 }
+

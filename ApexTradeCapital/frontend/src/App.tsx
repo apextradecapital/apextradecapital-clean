@@ -14,12 +14,12 @@ import logo from '/logo.png';
 export default function App(){
   return (
   <div style={{background:'#1e3a8a',padding:'10px 16px',display:'flex',alignItems:'center',gap:12}}>
-    <img src={logo} alt='Apex' style={{height:32}} />
-    <span style={{color:'#D4AF37',fontWeight:700,letterSpacing:1}}>Apex Trade Capital</span>
+    <img src={logo} alt='PrimeFX' style={{height:32}} />
+    <span style={{color:'#D4AF37',fontWeight:700,letterSpacing:1}}>PrimeFX</span>
   </div>
   
     <BrowserRouter>
-      <header className="header">APEX TRADE CAPITAL</header>
+      <header className="header">PrimeFX</header>
       <nav className="navbar">
         <Link to="/">Accueil</Link>
         <Link to="/register">Inscription</Link>
@@ -29,7 +29,7 @@ export default function App(){
       </nav>
       <div className="main">
         <Routes>
-          <Route path="/" element={<h2>Bienvenue sur Apex Trade Capital</h2>}/>
+          <Route path="/" element={<h2>Bienvenue sur PrimeFX</h2>}/>
           <Route path="/register" element={<Register/>}/>
           <Route path="/invest" element={<Invest/>}/>
           <Route path="/confirm" element={<Confirm/>}/>
@@ -44,4 +44,5 @@ export default function App(){
 
 
 <WhatsAppFloat/>
+
 

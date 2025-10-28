@@ -1,1 +1,2 @@
-﻿export const API_BASE_URL = "https://apextradecapital-backend.onrender.com/api";
+export const API_BASE_URL = "https://PrimeFX-backend.onrender.com/api";
+

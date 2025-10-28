@@ -1,4 +1,4 @@
-﻿import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
 export default function FloatingWhatsApp() {
   const num = import.meta.env.VITE_WHATSAPP_NUMBER || "+16265333367";
   const link = `https://wa.me/${num.replace(/[^0-9]/g,"")}`;
@@ -15,3 +15,4 @@ export default function FloatingWhatsApp() {
     </a>
   );
 }
+

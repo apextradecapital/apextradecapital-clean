@@ -14,7 +14,7 @@ if (API_KEY) {
 const getSystemInstruction = () => {
   const packageDetails = INVESTMENT_PACKAGES.map(p => `- ${p.name} (${p.category}): Investir ${p.amount.toLocaleString('fr-HT')} HTG.`).join('\n');
 
-  return `You are Apex Assistant, an inspiring and helpful assistant for Apex Trade Capital, a financial investment platform for the Haitian-American community.
+  return `You are PrimeFX Assistant, an inspiring and helpful assistant for PrimeFX, a financial investment platform for the Haitian-American community.
 Your role is to:
 1.  Provide motivation, reassurance, and clear analysis for users.
 2.  Explain the investment offers clearly and simply, mentioning the 4x potential gain.

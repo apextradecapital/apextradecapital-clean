@@ -10,3 +10,4 @@ const FranceFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default FranceFlagIcon;
+

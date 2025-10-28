@@ -123,3 +123,4 @@ function formatMoney(n: number) {
   try { return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(n || 0); }
   catch { return String(Math.round(n || 0)); }
 }
+

@@ -51,10 +51,10 @@ export const MOCK_USERS: User[] = [
 ];
 
 export const MOCK_TESTIMONIALS: Testimonial[] = [
-    { id: 'test_1', name: 'Jean-Pierre Dubois', city: 'Port-au-Prince', photo: 'https://i.pravatar.cc/150?u=jp_dubois', comment: 'Un service exceptionnel qui a changé ma perspective sur l\'investissement. L\'équipe est professionnelle et toujours à l\'écoute. Je recommande vivement Apex!', stars: 5, createdAt: new Date('2023-10-20T10:00:00Z').toISOString() },
+    { id: 'test_1', name: 'Jean-Pierre Dubois', city: 'Port-au-Prince', photo: 'https://i.pravatar.cc/150?u=jp_dubois', comment: 'Un service exceptionnel qui a changé ma perspective sur l\'investissement. L\'équipe est professionnelle et toujours à l\'écoute. Je recommande vivement PrimeFX!', stars: 5, createdAt: new Date('2023-10-20T10:00:00Z').toISOString() },
     { id: 'test_2', name: 'Marie-Lourdes Célestin', city: 'Cap-Haïtien', photo: 'https://i.pravatar.cc/150?u=ml_celestin', comment: 'Grâce à Open International, j\'ai pu enfin concrétiser mon projet de mobilité. Un accompagnement de A à Z, je me suis sentie en sécurité et bien conseillée.', stars: 5, createdAt: new Date('2023-11-05T14:30:00Z').toISOString() },
     { id: 'test_3', name: 'Kenny Joseph', city: 'Pétion-Ville', photo: 'https://i.pravatar.cc/150?u=k_joseph', comment: 'J\'étais sceptique au début, mais les résultats sont là. Mon capital a grandi et j\'ai pu financer mes projets personnels. Une plateforme fiable et transparente.', stars: 4, createdAt: new Date('2023-11-15T09:00:00Z').toISOString() },
-    { id: 'test_4', name: 'Stéphanie Auguste', city: 'Jacmel', photo: 'https://i.pravatar.cc/150?u=s_auguste', comment: 'Le programme de mobilité pour les infirmières est une opportunité en or. Apex a tout géré, des documents au logement. Je suis très reconnaissante.', stars: 5, createdAt: new Date('2024-01-22T18:00:00Z').toISOString() }
+    { id: 'test_4', name: 'Stéphanie Auguste', city: 'Jacmel', photo: 'https://i.pravatar.cc/150?u=s_auguste', comment: 'Le programme de mobilité pour les infirmières est une opportunité en or. PrimeFX a tout géré, des documents au logement. Je suis très reconnaissante.', stars: 5, createdAt: new Date('2024-01-22T18:00:00Z').toISOString() }
 ];
 
 export const MOCK_WITHDRAWALS: Withdrawal[] = [

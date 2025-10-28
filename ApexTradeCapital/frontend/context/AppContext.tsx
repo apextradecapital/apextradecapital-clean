@@ -77,7 +77,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const getInitialLanguage = (): Language => {
-    const savedLang = localStorage.getItem('apex-lang') as Language;
+    const savedLang = localStorage.getItem('PrimeFX-lang') as Language;
     if (savedLang && ['FR', 'EN', 'HT'].includes(savedLang)) {
         return savedLang;
     }
@@ -134,23 +134,23 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('apex-lang', lang);
+    localStorage.setItem('PrimeFX-lang', lang);
   }
 
   // Effect to rehydrate sessions from localStorage on initial load
   useEffect(() => {
     // User session
-    const savedUserJson = localStorage.getItem('apex-user-session');
+    const savedUserJson = localStorage.getItem('PrimeFX-user-session');
     if (savedUserJson) {
       try {
         setCurrentUser(JSON.parse(savedUserJson));
       } catch (error) {
         console.error("Failed to parse user session", error);
-        localStorage.removeItem('apex-user-session');
+        localStorage.removeItem('PrimeFX-user-session');
       }
     }
     // Admin session (with 24h expiry)
-    const savedAdminJson = localStorage.getItem('apex-admin-session');
+    const savedAdminJson = localStorage.getItem('PrimeFX-admin-session');
     if (savedAdminJson) {
         try {
             const { token, timestamp } = JSON.parse(savedAdminJson);
@@ -159,11 +159,11 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
                 setToken(token);
                 setIsAdmin(true);
             } else {
-                localStorage.removeItem('apex-admin-session');
+                localStorage.removeItem('PrimeFX-admin-session');
             }
         } catch (error) {
             console.error("Failed to parse admin session", error);
-            localStorage.removeItem('apex-admin-session');
+            localStorage.removeItem('PrimeFX-admin-session');
         }
     }
   }, []);
@@ -181,10 +181,10 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const loginAdmin = async (password: string): Promise<boolean> => {
     console.log(`Attempting admin login...`);
     if (password === 'Innovaia1306@') {
-      const mockToken = 'mock-jwt-token-for-apex-trade-capital';
+      const mockToken = 'mock-jwt-token-for-PrimeFX-trade-capital';
       setToken(mockToken);
       setIsAdmin(true);
-      localStorage.setItem('apex-admin-session', JSON.stringify({ token: mockToken, timestamp: Date.now() }));
+      localStorage.setItem('PrimeFX-admin-session', JSON.stringify({ token: mockToken, timestamp: Date.now() }));
       return true;
     }
     return false;
@@ -195,7 +195,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     if (userToLogin) {
       const { password: _, ...userToStore } = userToLogin;
       setCurrentUser(userToStore);
-      localStorage.setItem('apex-user-session', JSON.stringify(userToStore));
+      localStorage.setItem('PrimeFX-user-session', JSON.stringify(userToStore));
       return { success: true };
     }
     return { success: false, error: t('incorrect_password') };
@@ -204,9 +204,9 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const logout = () => {
     setToken(null);
     setIsAdmin(false);
-    localStorage.removeItem('apex-admin-session');
+    localStorage.removeItem('PrimeFX-admin-session');
     setCurrentUser(null);
-    localStorage.removeItem('apex-user-session');
+    localStorage.removeItem('PrimeFX-user-session');
     navigate('home');
   };
 

@@ -54,7 +54,7 @@ const SoleyChatbot = () => {
       <div className={`fixed bottom-0 right-0 sm:bottom-8 sm:right-8 w-full h-full sm:w-96 sm:h-[600px] bg-white dark:bg-brand-charcoal rounded-none sm:rounded-lg shadow-2xl flex flex-col z-50 transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <header className="flex items-center justify-between p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
           <h3 className="font-bold text-lg text-brand-blue dark:text-brand-gold flex items-center">
-            <SparklesIcon className="w-5 h-5 mr-2 text-brand-gold"/> Apex Assistant
+            <SparklesIcon className="w-5 h-5 mr-2 text-brand-gold"/> PrimeFX Assistant
           </h3>
           <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-800 dark:hover:text-white">&times;</button>
         </header>

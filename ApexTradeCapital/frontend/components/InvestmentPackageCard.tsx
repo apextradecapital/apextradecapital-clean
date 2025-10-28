@@ -31,3 +31,4 @@ const InvestmentPackageCard: React.FC<InvestmentPackageCardProps> = ({ pkg, onSe
 };
 
 export default InvestmentPackageCard;
+

@@ -74,3 +74,4 @@ const IntentCreationPage = () => {
 };
 
 export default IntentCreationPage;
+

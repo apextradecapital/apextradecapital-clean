@@ -91,7 +91,7 @@ const InvestmentModal: React.FC<InvestmentModalProps> = ({ pkg, onClose }) => {
         
         const { formattedNumber: fullPhoneNumber } = validatePhoneNumber(phone, countryCode);
 
-        const message = `👋 Bonjour Apex Trade Capital,
+        const message = `👋 Bonjour PrimeFX,
 
 Je souhaite souscrire à une offre d'investissement.
 

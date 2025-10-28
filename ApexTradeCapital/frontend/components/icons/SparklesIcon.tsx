@@ -18,3 +18,4 @@ const SparklesIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default SparklesIcon;
+

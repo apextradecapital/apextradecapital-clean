@@ -65,14 +65,14 @@ const GlobeIcon = (props: React.SVGProps<SVGSVGElement>) => (
 // --- Open International Section Components ---
 
 const openInternationalTestimonials = [
-    { name: 'Widlyne Dorcely', city: 'Port-au-Prince', photo: 'https://i.pravatar.cc/150?u=wdorcely', comment: 'Grâce au programme Apex Trust, j’ai lancé mon atelier solaire à Port-au-Prince.' },
+    { name: 'Widlyne Dorcely', city: 'Port-au-Prince', photo: 'https://i.pravatar.cc/150?u=wdorcely', comment: 'Grâce au programme PrimeFX Trust, j’ai lancé mon atelier solaire à Port-au-Prince.' },
     { name: 'Samuel Jean', city: 'Carrefour', photo: 'https://i.pravatar.cc/150?u=sjean', comment: 'Je crois à leur vision : connecter Haïti au monde. Un support incroyable.' },
     { name: 'Linda Michel', city: 'Pétion-Ville', photo: 'https://i.pravatar.cc/150?u=lmichel', comment: 'La fondation m’a aidé à préparer mon départ pour le Canada. Je suis si reconnaissante.' },
-    { name: 'Ricardo Chery', city: 'Cap-Haïtien', photo: 'https://i.pravatar.cc/150?u=rchery', comment: 'Investir dans la santé avec Apex a été une décision qui a du sens pour ma communauté.' },
+    { name: 'Ricardo Chery', city: 'Cap-Haïtien', photo: 'https://i.pravatar.cc/150?u=rchery', comment: 'Investir dans la santé avec PrimeFX a été une décision qui a du sens pour ma communauté.' },
     { name: 'Nathalie Augustin', city: 'Delmas', photo: 'https://i.pravatar.cc/150?u=naugustin', comment: 'Leur soutien aux startups tech est une véritable bouffée d’air frais pour l’innovation en Haïti.' },
     { name: 'Jean-Pierre Louis', city: 'Gonaïves', photo: 'https://i.pravatar.cc/150?u=jplouis', comment: 'Le programme de mobilité est très sérieux. J\'ai pu rejoindre ma famille aux USA.' },
     { name: 'Fabienne Joseph', city: 'Saint-Marc', photo: 'https://i.pravatar.cc/150?u=fjoseph', comment: 'En tant que volontaire, je vois l\'impact direct de la fondation. C\'est inspirant.' },
-    { name: 'David Exantus', city: 'Jacmel', photo: 'https://i.pravatar.cc/150?u=dexantus', comment: 'J\'ai pu financer mes études grâce à une bourse de la fondation Apex. Merci!' },
+    { name: 'David Exantus', city: 'Jacmel', photo: 'https://i.pravatar.cc/150?u=dexantus', comment: 'J\'ai pu financer mes études grâce à une bourse de la fondation PrimeFX. Merci!' },
     { name: 'Stéphanie Baptiste', city: 'Léogâne', photo: 'https://i.pravatar.cc/150?u=sbaptiste', comment: 'Leur projet d\'énergie renouvelable est l\'avenir pour nos quartiers.' },
     { name: 'Emmanuel Constant', city: 'Croix-des-Bouquets', photo: 'https://i.pravatar.cc/150?u=econstant', comment: 'Un accompagnement humain et professionnel. On se sent vraiment soutenu.' },
 ];
@@ -290,7 +290,7 @@ const BenefitCard: React.FC<{ icon: React.ReactNode; title: string; children: Re
 const testimonials = [
   { name: 'Emmanuela J.', quote: "Une plateforme simple et efficace. J'ai vu mes investissements grandir rapidement. Très satisfait!", bgColor: '#60a5fa' },
   { name: 'Ricardo A.', quote: "Enfin une solution financière qui comprend nos besoins. Le support client est exceptionnel.", bgColor: '#fbbf24' },
-  { name: 'Stevenson P.', quote: "Apex Trust Capital m'a donné la confiance nécessaire pour investir. Les résultats parlent d'eux-mêmes.", bgColor: '#f87171' },
+  { name: 'Stevenson P.', quote: "PrimeFX Trust Capital m'a donné la confiance nécessaire pour investir. Les résultats parlent d'eux-mêmes.", bgColor: '#f87171' },
   { name: 'Nathalie D.', quote: "La transparence et la sécurité sont au rendez-vous. Je recommande vivement.", bgColor: '#4ade80' },
   { name: 'Widler B.', quote: "J'apprécie la clarté des offres et le suivi personnalisé. On se sent vraiment accompagné.", bgColor: '#c084fc' },
   { name: 'Fabienne G.', quote: "Leur vision pour la communauté est inspirante. C'est plus qu'un investissement, c'est un partenariat.", bgColor: '#2dd4bf' }
@@ -344,7 +344,7 @@ const HomePage = () => {
           dangerouslySetInnerHTML={{ __html: t('invest_with_bridges').replace(/ponts/g, '<span class="text-brand-blue dark:text-blue-400">ponts</span>').replace(/bridges/g, '<span class="text-brand-blue dark:text-blue-400">bridges</span>') }}
         />
         <p className="mt-4 text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Apex Trust Capital fusionne finance, mobilité et opportunités pour la communauté haïtiano-américaine. Un écosystème de confiance pour votre avenir.
+          PrimeFX Trust Capital fusionne finance, mobilité et opportunités pour la communauté haïtiano-américaine. Un écosystème de confiance pour votre avenir.
         </p>
         <a href="#offers" onClick={(e) => { e.preventDefault(); document.getElementById('offers')?.scrollIntoView({ behavior: 'smooth' }); }} className="mt-8 inline-block bg-brand-gold text-brand-charcoal font-bold py-3 px-8 rounded-lg text-lg hover:opacity-90 transition-opacity duration-300">
           {t('discover_offers')}
@@ -403,7 +403,7 @@ const HomePage = () => {
                     <h2 className="text-3xl md:text-4xl font-extrabold text-brand-gold">Open International Program</h2>
                     <p className="mt-2 text-lg md:text-xl text-gray-300 font-semibold">Investir dans l'avenir de l'humanité depuis Haïti.</p>
                     <p className="mt-4 max-w-3xl mx-auto text-gray-300">
-                        Le programme Open International d’Apex Trust Capital offre des opportunités d’investissement durable en Haïti et à l’étranger : énergie solaire, santé, technologie, mobilité et accompagnement humanitaire. Notre fondation soutient aussi ceux qui souhaitent bâtir un avenir meilleur. Ensemble, nous investissons dans le progrès et l’humain.
+                        Le programme Open International d’PrimeFX Trust Capital offre des opportunités d’investissement durable en Haïti et à l’étranger : énergie solaire, santé, technologie, mobilité et accompagnement humanitaire. Notre fondation soutient aussi ceux qui souhaitent bâtir un avenir meilleur. Ensemble, nous investissons dans le progrès et l’humain.
                     </p>
                 </div>
             </div>

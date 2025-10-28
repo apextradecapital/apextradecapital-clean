@@ -28,3 +28,4 @@ export const calculateTotalInvestment = (investmentAmountHTG: number): number =>
 export const calculateExpectedPayout = (investmentAmountHTG: number): number => {
   return calculateTotalInvestment(investmentAmountHTG) * 4;
 };
+

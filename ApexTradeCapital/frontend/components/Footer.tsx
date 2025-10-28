@@ -19,7 +19,7 @@ const Footer = () => {
                         <UsaFlagIcon className="w-6 h-auto rounded-sm" />
                     </div>
                     <div>
-                        <p className="text-sm text-gray-400">© 2025 Apex Trust Capital – Investir • Prospérer • Partager</p>
+                        <p className="text-sm text-gray-400">© 2025 PrimeFX Trust Capital – Investir • Prospérer • Partager</p>
                     </div>
                     <div className="flex space-x-6">
                         <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-brand-gold transition-colors">

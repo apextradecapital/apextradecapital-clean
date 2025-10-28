@@ -14,3 +14,4 @@ const UsaFlagIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default UsaFlagIcon;
+

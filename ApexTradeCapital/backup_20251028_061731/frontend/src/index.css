@@ -1,0 +1,30 @@
+﻿/* === APEX TRADE CAPITAL THEME === */
+:root {
+  --apex-blue: #1e3a8a;
+  --apex-gold: #D4AF37;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: 'Inter', sans-serif;
+}
+
+header, nav {
+  background-color: var(--apex-blue);
+  color: white;
+  font-weight: 600;
+}
+
+button {
+  background-color: var(--apex-gold);
+  color: #111827;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #b98d28;
+}
